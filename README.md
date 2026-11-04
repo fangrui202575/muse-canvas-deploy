@@ -15,10 +15,10 @@
 ## 手动安装（Windows x64）
 
 1. 从本仓库 Releases 下载 `MuseCanvas-<版本>.zip`（约 491 MB，含 FFmpeg；解压后约 1.4 GB），解压到任意目录。
-2. 右键以 PowerShell 运行解压目录里的 `Install.ps1`（或执行 `powershell -ExecutionPolicy Bypass -File .\Install.ps1`）。它会把程序装到 `C:\MuseCanvas` 并在桌面建快捷方式；加 `-AutoStart` 参数可注册登录自启。
-3. 双击桌面 MuseCanvas 快捷方式启动，浏览器会自动打开画布（http://localhost:3000）。
+2. 右键以 PowerShell 运行解压目录里的 `Install.ps1`（或执行 `powershell -ExecutionPolicy Bypass -File .\Install.ps1 -ForUser <你的 Windows 账号>`）。它会把程序装到 `C:\MuseCanvas`，在公共桌面建快捷方式（所有用户可见），并把数据目录位置记录在安装目录的 `instance.json` 里，之后从任何账号启动都用同一份数据；想把数据放别的盘加 `-DataDirectory <路径>`，想登录自启加 `-AutoStart`。
+3. 在桌面上双击 MuseCanvas 快捷方式启动（不要从 SSH 等远程命令窗口启动，否则生成池的登录窗口在桌面上看不见），浏览器会自动打开画布（http://localhost:3000）。
 4. 首次使用按页面引导，用你自己的 Muse 账号登录生成池；Agent 面板用你自己的 Codex / Claude 账号或 API Key 配置。
-5. 停止：在安装目录执行 `powershell -ExecutionPolicy Bypass -File .\scripts\Manage.ps1 -Action Stop`（数据保留在 `%LOCALAPPDATA%\MuseCanvas\data`）。
+5. 停止：在安装目录执行 `powershell -ExecutionPolicy Bypass -File .\scripts\Manage.ps1 -Action Stop`（数据保留在 `instance.json` 记录的数据目录里，默认为你的 `%LOCALAPPDATA%\MuseCanvas\data`）。
 
 ## 环境要求
 
@@ -40,4 +40,4 @@
 
 ## 版本
 
-见仓库根目录 `manifest.json`（组件与版本清单）。当前版本：0.20.0-preview.1。
+见仓库根目录 `manifest.json`（组件与版本清单）。当前版本：0.20.0-preview.2。
