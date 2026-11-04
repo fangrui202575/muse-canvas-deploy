@@ -7,7 +7,9 @@
 1. 系统是 Windows 10/11 x64：`$env:PROCESSOR_ARCHITECTURE` 应为 AMD64。
 2. 磁盘可用空间 ≥ 5 GB（目标盘）。
 3. 本机装有 Chrome 或 Edge（生成池必需）。
-4. 网络可达性：在浏览器或用请求确认能打开 https://muse.ai 。打不开时明确告诉用户：生成池无法登录，生图生视频用不了；其余功能（画布、合成、导出）不受影响。是否继续由用户决定。
+4. **先定实际使用者和数据位置**：确认日常使用这台电脑的是哪个 Windows 账号、数据想放哪个盘。安装时用 `-ForUser <账号>` 指定使用者、可用 `-DataDirectory <路径>` 指定数据目录；安装会把数据目录写死在安装目录的 `instance.json` 里，之后从任何账号启动都用同一份数据。不要装完再换目录、更不要让两个账号各生成一份数据。
+5. 网络可达性：在浏览器或用请求确认能打开 https://muse.ai 。打不开时明确告诉用户：生成池无法登录，生图生视频用不了；其余功能（画布、合成、导出）不受影响。是否继续由用户决定。注意：普通浏览器能打开不等于生成池能用——池子用的是它自己的浏览器和网络路径，最终以第 5 节验收里"额度能查出"为准；系统代理/TUN 是否开启只作排查参考，不要当通过标准。
+6. 语音说明：语音转文字的模型权重不在包内。未另行安装语音包时，画布的语音识别不可用（会返回 503，这是预期行为）。安装前就要把这件事告诉用户，不要等他用时才发现。
 
 ## 1. 下载并校验
 
@@ -17,24 +19,46 @@
 ## 2. 安装
 
 1. 把压缩包解压到一个临时目录（不要直接在压缩包里运行脚本）。
-2. 在解压目录执行：`powershell -ExecutionPolicy Bypass -File .\Install.ps1`
-   - 默认装到 `C:\MuseCanvas` 并创建桌面快捷方式。用户想装别处：`-Destination <路径>`；想登录自启：加 `-AutoStart`。
-3. 验证：`C:\MuseCanvas\scripts\Manage.ps1` 存在，且 `C:\MuseCanvas` 下有 agent、pool、services、web、tools、node 六个目录。
+2. 在解压目录执行：`powershell -ExecutionPolicy Bypass -File .\Install.ps1 -ForUser <实际使用者的 Windows 账号>`
+   - 默认装到 `C:\MuseCanvas`，快捷方式建在**公共桌面**（所有用户可见）。用户想装别处：`-Destination <路径>`；想指定数据目录（比如不放 C 盘）：`-DataDirectory <路径>`；想登录自启：加 `-AutoStart`（自启任务绑定 `-ForUser` 指定的使用者）。
+   - 代装（你和实际使用者不是同一个 Windows 账号）时 `-ForUser` 必填，否则数据会落到你这个账号的目录下。
+3. 验证：`C:\MuseCanvas\scripts\Manage.ps1` 存在，且 `C:\MuseCanvas` 下有 agent、pool、services、web、tools、node 六个目录；安装目录里有 `instance.json`，其中 `dataDirectory` 是预定的数据目录、`forUser` 是实际使用者。
 
 ## 3. 首次启动
 
-1. 执行：`powershell -ExecutionPolicy Bypass -File "C:\MuseCanvas\scripts\Manage.ps1" -Action Start`
-2. 成功标准：输出 `MuseCanvas is ready: http://localhost:3000`，且浏览器打开后能看到画布首页。若报端口占用（3000/17371/17372/18610/19210 任一），停下来把占用情况报告用户，不要擅自结束其他进程。
-3. 若报 FFmpeg not found：确认 `C:\MuseCanvas\tools\ffmpeg.exe` 存在；缺失说明解压不完整，重新解压。
+1. **必须在实际使用者的桌面会话里启动**：让使用者双击桌面上的 MuseCanvas 快捷方式，或用绑定该使用者的登录自启任务。不要从 SSH、远程命令等会话 0 环境里启动后就当完成——那种方式下服务能跑，但生成池的登录浏览器在桌面上看不见，而且远程会话断开后进程可能被连带结束。
+2. 命令行启动（在桌面会话里）：`powershell -ExecutionPolicy Bypass -File "C:\MuseCanvas\scripts\Manage.ps1" -Action Start`。若输出里出现 "non-interactive session (session 0)" 警告，说明你正处在错误的会话里：停下来，改到桌面会话里启动。
+3. 成功标准：输出 `MuseCanvas is ready: http://localhost:3000`，且浏览器打开后能看到画布首页。若报端口占用（3000/17371/17372/18610/19210 任一），停下来把占用情况报告用户，不要擅自结束其他进程。
+4. 若报 FFmpeg not found：确认 `C:\MuseCanvas\tools\ffmpeg.exe` 存在；缺失说明解压不完整，重新解压。
 
 ## 4. 引导用户登录（只能用户本人操作，你不能代填）
 
 1. 生成池登录：在画布里按引导打开生成池的登录页，让用户用自己的 Muse 账号登录。成功标准：画布里发起一次文生图测试，能返回图片。
+   - 若生成池管理页提示 "API Key 必填"：先刷新一次页面——本机打开管理页时，页面会自动向服务端同步当前实例的 Key，旧缓存会被纠正。注意右上角的输入框才是填写并保存的地方；页面中部"接入信息"里的 Key 是只读展示，不是输入框。刷新后仍不行再报告，不要反复重装。
 2. Agent 脑子：在右侧 Agent 面板按用户选择接入 Codex 或 Claude。
    - 选 Codex：包内自带 Codex 运行时，用户用自己的 OpenAI 账号登录即可。
    - 选 Claude：包内没有 Claude Code，必须先在这台电脑上另行安装 Claude Code 命令行工具（按 Anthropic 官方安装方式），并让用户本人登录自己的 Claude 账号（会员或 API Key），装好后再回面板选 Claude。没装 Claude Code 时 Claude 选项不可用；先用 Codex 不影响画布、生成、合成等其他功能。
    - 成功标准：在面板里发一句测试指令，Agent 有正常回复且能读到当前画布。
-3. 到这一步，部署才算完成。把启动/停止方法告诉用户：桌面快捷方式启动；停止用 `Manage.ps1 -Action Stop`；数据目录在 `%LOCALAPPDATA%\MuseCanvas\data`，卸载删程序目录和数据目录即可。
+3. 登录完成后，按第 5 节逐项验收，全过才算部署完成。把启动/停止方法告诉用户：桌面快捷方式启动；停止用 `Manage.ps1 -Action Stop`；数据目录以安装目录里 `instance.json` 记录的为准，卸载删程序目录和数据目录即可。
+
+## 5. 验收清单（逐项实际验证，缺一不可）
+
+1. 画布首页能打开；`Manage.ps1 -Action Status` 四个组件都是 Running。
+2. **Agent 真能干活**：在 Agent 面板让它读取当前画布，或新建一个测试节点，必须成功返回。只显示"已连接"、健康检查通过都不算数——配置传递出问题时恰恰表现为连得上、读不了，一读就报 invalid token。
+3. **页面内合成导出全链路**：在画布里建一个合成节点，连入 2 段视频，点导出，能生成并下载成片才算过。只调接口、只看 /health 不算验收。
+4. **生成池额度可查**：账号列表里该账号的额度能查出结果。显示"未查"一律按未确认处理：报告卡住的环节（网络不通 / 登录失效 / 页面识别失败），不要报"账号可用"。
+5. **停止干净**：`Manage.ps1 -Action Stop` 后，3000 / 17371 / 17372 / 18610 四个端口全部释放。
+6. **媒体链**：用一条已生成的视频验完整链路（不要为了验收重新生成）：画布里能播放；刷新页面后还能播放；点下载得到的 mp4 文件能正常播放；把该节点连入合成节点能导出成片。任一环不通都不要报验收通过——生成成功但播不了，是媒体地址没对齐的典型症状，先查生成池的 `public_base` 是否为 `http://localhost:<池子端口>`（池子管理页 /admin/status 的 config.public_base），为空就是启动环境没配对，不要去动视频文件本身。
+7. **向用户交代清楚**：数据目录在哪（instance.json 里有记录）；语音功能在未装语音包时不可用；日常启动用桌面快捷方式，不要从远程会话里启动。
+
+## 附：视频节点损坏的恢复（生成成功但画布播不了、下载是坏文件）
+
+旧版本部署过的机器上可能已有这种节点：池子任务本身是成功的、成片文件也在，只是画布里存进了一份错误内容（几十字节的文本），表现为不能播放、下载下来也打不开。不需要重新生成，按下面恢复（在画布页面的开发者工具控制台里执行，或让你的 AI 通过浏览器控制执行）：
+
+1. 选中损坏节点，记下它的任务号（节点信息里的 video task id）和存储键（storageKey）。
+2. 向池子要回原任务结果：`GET http://localhost:<池子端口>/v1/videos/<任务号>`，请求头带池子的 API Key（在数据目录 install.json 里）。取返回的 `url`；若它以 `/` 开头，是相对地址，必须拼上池子地址 `http://localhost:<池子端口>` 才是真地址——直接拿相对地址在画布域名下取，取到的永远是错误页。
+3. 下载该地址，校验三件事再存：HTTP 200、Content-Type 是 video/*、文件头带 `ftyp`（是真 mp4）。任一不满足就停下来报告，不要把内容存进画布。
+4. 把校验过的视频按原来的 storageKey 写回画布的媒体存储（IndexedDB 数据库 `infinite-canvas`、表 `media_files`），并更新节点元数据里的 bytes / mimeType。刷新页面，节点应恢复播放；再点一次下载确认文件可播。
 
 ## 红线
 
