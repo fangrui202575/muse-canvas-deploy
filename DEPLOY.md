@@ -30,7 +30,10 @@
 ## 4. 引导用户登录（只能用户本人操作，你不能代填）
 
 1. 生成池登录：在画布里按引导打开生成池的登录页，让用户用自己的 Muse 账号登录。成功标准：画布里发起一次文生图测试，能返回图片。
-2. Agent 脑子：在右侧 Agent 面板按用户选择接入 Codex（用户自己的 OpenAI 账号登录）或 Claude（会员账号或 API Key，由用户本人填写）。成功标准：在面板里发一句测试指令，Agent 有正常回复且能读到当前画布。
+2. Agent 脑子：在右侧 Agent 面板按用户选择接入 Codex 或 Claude。
+   - 选 Codex：包内自带 Codex 运行时，用户用自己的 OpenAI 账号登录即可。
+   - 选 Claude：包内没有 Claude Code，必须先在这台电脑上另行安装 Claude Code 命令行工具（按 Anthropic 官方安装方式），并让用户本人登录自己的 Claude 账号（会员或 API Key），装好后再回面板选 Claude。没装 Claude Code 时 Claude 选项不可用；先用 Codex 不影响画布、生成、合成等其他功能。
+   - 成功标准：在面板里发一句测试指令，Agent 有正常回复且能读到当前画布。
 3. 到这一步，部署才算完成。把启动/停止方法告诉用户：桌面快捷方式启动；停止用 `Manage.ps1 -Action Stop`；数据目录在 `%LOCALAPPDATA%\MuseCanvas\data`，卸载删程序目录和数据目录即可。
 
 ## 红线
