@@ -1,7 +1,5 @@
 param(
     [string]$Destination = 'C:\MuseCanvas',
-    [string]$ForUser = $env:USERNAME,
-    [string]$DataDirectory = '',
     [switch]$AutoStart,
     [switch]$NoShortcut
 )
@@ -25,16 +23,6 @@ $protected = @([IO.Path]::GetPathRoot($Destination), $env:USERPROFILE, $env:WIND
 foreach ($p in $protected) { if ($p -and ($Destination.TrimEnd('\') -ieq $p.TrimEnd('\'))) { throw ('Refusing to install into ' + $Destination + '. Choose a dedicated folder such as C:\MuseCanvas.') } }
 $destManage = Join-Path $Destination 'scripts\Manage.ps1'
 $hadInstall = Test-Path -LiteralPath $destManage
-$prevDataDirectory = ''
-if ($hadInstall) {
-    $prevInstancePath = Join-Path $Destination 'instance.json'
-    if (Test-Path -LiteralPath $prevInstancePath) {
-        try {
-            $prevInstance = Get-Content -Raw -Encoding UTF8 -LiteralPath $prevInstancePath | ConvertFrom-Json
-            if ($prevInstance.dataDirectory) { $prevDataDirectory = [string]$prevInstance.dataDirectory }
-        } catch { }
-    }
-}
 if ((Test-Path -LiteralPath $Destination) -and -not $hadInstall) {
     $existing = @(Get-ChildItem -LiteralPath $Destination -Force -ErrorAction SilentlyContinue)
     if ($existing.Count -gt 0) { throw ('Destination ' + $Destination + ' already contains other files and is not a MuseCanvas installation, so it will not be overwritten. Choose an empty folder, or the folder of an existing MuseCanvas install.') }
@@ -80,41 +68,14 @@ try {
     if ((Test-Path -LiteralPath $backup) -and -not (Test-Path -LiteralPath $Destination)) { Move-Item -LiteralPath $backup -Destination $Destination }
     throw ('Install failed during the folder swap; the previous installation was restored. ' + $_.Exception.Message)
 }
-$marker = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.20.0-preview.2'; installedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') }
+$marker = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.20.0-preview.1'; installedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') }
 [IO.File]::WriteAllText((Join-Path $Destination 'musecanvas.json'), ($marker | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
-
-# 5b) Pin the instance: record which data directory belongs to this install, so
-# every later Start/Stop/Status - from any Windows account - resolves the same
-# data directory instead of the caller's own profile folder.
-if (!$DataDirectory) {
-    if ($prevDataDirectory) {
-        $DataDirectory = $prevDataDirectory
-    } else {
-        if ($ForUser -ieq $env:USERNAME) { $localApp = [Environment]::GetFolderPath('LocalApplicationData') }
-        else { $localApp = Join-Path (Join-Path $env:SystemDrive ('Users\' + $ForUser)) 'AppData\Local' }
-        $DataDirectory = Join-Path $localApp 'MuseCanvas\data'
-    }
-}
-$DataDirectory = [IO.Path]::GetFullPath($DataDirectory)
-$instance = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.20.0-preview.2'; installDir = $Destination; dataDirectory = $DataDirectory; forUser = $ForUser }
-[IO.File]::WriteAllText((Join-Path $Destination 'instance.json'), ($instance | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
-Write-Output ('Instance data directory: ' + $DataDirectory)
 if (Test-Path -LiteralPath $backup) { Remove-Item -LiteralPath $backup -Recurse -Force -ErrorAction SilentlyContinue }
 Write-Output ('Installed MuseCanvas to ' + $Destination)
 
 # 6) Shortcut and optional auto-start.
 if (!$NoShortcut) {
-    $desktop = [Environment]::GetFolderPath('CommonDesktopDirectory')
-    try {
-        if (!(Test-Path -LiteralPath $desktop)) { throw 'public desktop unavailable' }
-        $probe = Join-Path $desktop ('.musecanvas-write-test-' + [Guid]::NewGuid().ToString('N'))
-        [IO.File]::WriteAllText($probe, '')
-        Remove-Item -LiteralPath $probe -Force
-    } catch {
-        if ($ForUser -ieq $env:USERNAME) { $desktop = [Environment]::GetFolderPath('Desktop') }
-        else { $desktop = Join-Path (Join-Path $env:SystemDrive ('Users\' + $ForUser)) 'Desktop' }
-        Write-Output ('Public desktop is not writable; the shortcut will be created on the desktop of user ' + $ForUser + ' instead.')
-    }
+    $desktop = [Environment]::GetFolderPath('Desktop')
     $lnkPath = Join-Path $desktop 'MuseCanvas.lnk'
     $shell = New-Object -ComObject WScript.Shell
     $lnk = $shell.CreateShortcut($lnkPath)
@@ -127,8 +88,8 @@ if (!$NoShortcut) {
 }
 if ($AutoStart) {
     $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument ('-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $destManage + '" -Action Start -NoBrowser')
-    $trigger = New-ScheduledTaskTrigger -AtLogOn -User $ForUser
-    $principal = New-ScheduledTaskPrincipal -UserId $ForUser -LogonType Interactive -RunLevel Limited
+    $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+    $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
     Register-ScheduledTask -TaskName 'MuseCanvas' -Action $action -Trigger $trigger -Principal $principal -Force | Out-Null
     Write-Output 'Auto-start at logon registered (scheduled task: MuseCanvas).'
 }
@@ -136,6 +97,6 @@ Write-Output ''
 Write-Output 'To start: double-click the MuseCanvas desktop shortcut, or run:'
 Write-Output ('  powershell -ExecutionPolicy Bypass -File "' + $destManage + '" -Action Start')
 Write-Output 'To stop: the same command with -Action Stop. Status: -Action Status.'
-Write-Output ('Your data lives outside the program folder in ' + $DataDirectory + ' and is never touched by install or update. The install records this location in instance.json inside the program folder, so Start/Stop/Status use the same data directory no matter which Windows account runs them.')
+Write-Output 'Your data lives outside the program folder in %LOCALAPPDATA%\MuseCanvas\data and is never touched by install or update.'
 Write-Output 'To uninstall: stop the app, delete the program folder above. Delete the data folder too only if you no longer need your settings, agent workspace and merged videos - that deletion cannot be undone.'
 Write-Output 'First run opens the canvas in your browser. Sign in to the generation pool with YOUR OWN Muse account, and connect Codex or Claude with your own account/API key. No account data is included in this package.'
