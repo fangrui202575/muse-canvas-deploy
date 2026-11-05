@@ -1,1 +1,32 @@
-{"components": {"agent": "canvas-agent 0.6.0 custom build, V8 bytecode, bundled Node v24.18.0, Codex 0.166.0", "models": "optional speech pack not included (faster-whisper-small weights)", "pool": "muse2api custom build (MusePool.exe, Nuitka-compiled modules, PyInstaller bundle)", "services": "merge export + Claude history service (bytecode), web static service (bytecode)", "tools": "FFmpeg (GPL build, see licenses)", "web": "infinite-canvas 0.20.0 (built frontend, custom build)"}, "dataDir": "recorded per install in instance.json (default %LOCALAPPDATA%/MuseCanvas/data)", "defaultInstallDir": "C:/MuseCanvas", "name": "MuseCanvas", "notes": "Free to use. No accounts, keys or user data included. Original development source is not published; third-party components ship under their own licenses (see licenses/ inside the package).", "package": {"file": "MuseCanvas-0.20.0-preview.2.zip", "sha256": "da3db5515d2b114fa3dcd6c8d3e86a228af33115ba15683520c13e942ce53917", "sizeBytes": 514697443, "uncompressedSizeGB": 1.36}, "platform": "windows-x64", "ports": {"agent": 17371, "cdp": 19210, "export": 17372, "pool": 18610, "web": 3000}, "version": "0.20.0-preview.2"}
+{
+  "components": {
+    "agent": "canvas-agent 0.6.0 custom build, V8 bytecode, bundled Node v24.18.0, Codex 0.166.0",
+    "models": "faster-whisper-small speech model weights included",
+    "pool": "muse2api custom build (MusePool.exe, Nuitka-compiled modules, PyInstaller bundle)",
+    "services": "merge export + Claude history service (bytecode), web static service (bytecode)",
+    "tools": "FFmpeg (GPL build, see licenses)",
+    "web": "infinite-canvas 0.20.0 (built frontend, custom build)"
+  },
+  "dataDir": "recorded per install in instance.json (default %LOCALAPPDATA%/MuseCanvas/data)",
+  "defaultInstallDir": "C:/MuseCanvas",
+  "name": "MuseCanvas",
+  "notes": "Free to use. No accounts, keys or user data included. Original development source is not published; third-party components ship under their own licenses (see licenses/ inside the package).",
+  "package": {
+    "file": "MuseCanvas-0.20.0-preview.3.zip",
+    "integrity": "Verify against the external Release SHA-256 before extraction. The ZIP cannot embed its own hash."
+  },
+  "platform": "windows-x64",
+  "ports": {
+    "agent": 17371,
+    "cdp": 19210,
+    "export": 17372,
+    "pool": 18610,
+    "web": 3000
+  },
+  "version": "0.20.0-preview.3",
+  "apiFormats": [
+    "anthropic",
+    "openai"
+  ],
+  "validation": "See RELEASE-NOTES.md; real account acceptance pending"
+}

@@ -1,45 +1,50 @@
-# MuseCanvas 无限画布（本地部署版）
+# MuseCanvas 无限画布 · Windows 本地部署版
 
-> 当前推荐包为 **0.20.0-preview.2**（完整安装包）。它修复了 preview.1 的首次安装 Agent 令牌、媒体加载和实例目录问题。已知限制：Claude 对话尚未自动注册画布工具；Agnes 的 OpenAI 接口不能直接填入本版 Claude 的 Anthropic 接口入口。这两项正在后续版本修复，请勿把 Claude 能聊天当作能操作画布。preview.1 仅保留用于回退。
+免费使用，原始开发源码不公开。本仓库只提供部署说明、安装脚本、版本清单和 Releases 成品包。
 
-一套在你自己电脑上运行的 AI 画布工作台：无限画布编辑、文生图 / 文生视频、多个视频片段合成成片并导出、右侧 Agent 面板用自然语言指挥画布干活。全部服务只监听本机（127.0.0.1），程序和你的作品数据都存在你自己的电脑上。
+**0.20.0-preview.3 是完整包，可独立全新安装，也可覆盖升级；不需要先安装旧版。** 新版补上 Claude 的实例画布工具注册，并增加 Agnes 等 OpenAI 格式 API 的适配。旧版本保留作回退。
 
-**免费使用。不包含任何账号**：生图生视频用的 Muse 账号、Agent 用的 Codex / Claude 账号，都需要你用自己的账号登录，额度算你自己的。
+这是预览版：已做不消耗云端额度的协议、工具、安装和导出检查；真实 Claude 会员、Agnes 账号及新电脑上的生成，仍须使用者本人验收。不能把“已连接”当成全部功能验收通过。
 
-## 最省事的装法：让你的 AI 来装
+## 复制给 AI 的安装指令
 
-把下面这句话复制给你的 AI 助手（Claude、Codex 等），它会照着本仓库的部署说明一步步装好并带你登录：
-
-```
-请打开这个仓库的 DEPLOY.md，严格按里面的步骤在这台电脑上部署 MuseCanvas：https://github.com/fangrui202575/muse-canvas-deploy （部署说明以仓库内文件为准；每一步都有验证标准，没通过不要跳步；需要我本人登录账号时停下来告诉我。）
+```text
+请读取 https://github.com/fangrui202575/muse-canvas-deploy 的 DEPLOY.md 和 manifest.json，在我的 Windows 电脑上安装对应的完整 MuseCanvas 发布包。先确认程序目录、数据目录和实际使用的 Windows 账号；未经我同意不要默认占用 C 盘、停止其他程序、删除旧数据或发起消耗额度的模型/生成测试。下载后核对 SHA-256，严格按说明安装；账号登录由我本人完成。最后分别报告通过、未通过、未测试的项目，不要只凭“已连接”宣布成功。
 ```
 
-## 手动安装（Windows x64）
+## 手动安装
 
-1. 从本仓库 Releases 下载 `MuseCanvas-<版本>.zip`（约 491 MB，含 FFmpeg；解压后约 1.4 GB），解压到任意目录。
-2. 右键以 PowerShell 运行解压目录里的 `Install.ps1`（或执行 `powershell -ExecutionPolicy Bypass -File .\Install.ps1 -ForUser <你的 Windows 账号>`）。它会把程序装到 `C:\MuseCanvas`，在公共桌面建快捷方式（所有用户可见），并把数据目录位置记录在安装目录的 `instance.json` 里，之后从任何账号启动都用同一份数据；想把数据放别的盘加 `-DataDirectory <路径>`，想登录自启加 `-AutoStart`。
-3. 在桌面上双击 MuseCanvas 快捷方式启动（不要从 SSH 等远程命令窗口启动，否则生成池的登录窗口在桌面上看不见），浏览器会自动打开画布（http://localhost:3000）。
-4. 首次使用按页面引导，用你自己的 Muse 账号登录生成池；Agent 面板用你自己的 Codex / Claude 账号或 API Key 配置。
-5. 停止：在安装目录执行 `powershell -ExecutionPolicy Bypass -File .\scripts\Manage.ps1 -Action Stop`（数据保留在 `instance.json` 记录的数据目录里，默认为你的 `%LOCALAPPDATA%\MuseCanvas\data`）。
+1. 从本仓库 [Releases](https://github.com/fangrui202575/muse-canvas-deploy/releases) 下载 `MuseCanvas-<版本>.zip`，核对 manifest 的大小和 SHA-256，解压到临时目录。
+2. 在解压目录运行，路径和账号按实际情况修改：
 
-## 环境要求
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\Install.ps1 -Destination 'E:\MuseCanvas' -DataDirectory 'E:\MuseCanvasData' -ForUser '你的Windows账号'
+   ```
 
-- Windows 10/11 x64，约 3 GB 可用磁盘（程序 1.4 GB + 数据增长）。
-- Chrome 或 Edge 浏览器（生成池登录和生成要用）。
-- 能正常打开 muse.ai 的网络（生成池靠它工作；打不开就无法生图生视频）。
-- 不需要预装 Node、Python 或 FFmpeg，包内自带。
+3. 实际使用者在自己的 Windows 桌面会话双击 MuseCanvas 快捷方式。不要从 SSH 或会话 0 启动日常服务。
+4. 用自己的 Muse 账号接入生成池；用自己的 Codex / Claude 账号或 API Key 接入 Agent。
 
-## 包含什么 / 不包含什么
+升级时 `-Destination` 指向旧安装，省略 `-DataDirectory` 即继承旧数据目录。不要先删旧安装、数据或浏览器资料。详见 [DEPLOY.md](DEPLOY.md)。
 
-- 包含：画布网页、Agent 后台（含 Codex 0.166 运行时）、Muse 生成池、片段合成与导出服务、FFmpeg、本地运行环境。
-- 不包含：任何账号、密钥、作品和浏览器登录态；语音转文字的模型权重（单独的可选包，装上后放进 `models\faster-whisper-small`）；Claude Code 命令行工具（Agent 想用 Claude 当脑子时需另行安装并登录，步骤见 DEPLOY.md；包内自带的是 Codex 运行时）。
+## 功能与前提
 
-## 隐私与安全
+| 功能 | 需要什么 |
+| --- | --- |
+| 画布、视频预览、选段合成、导出 | 包内环境与已有素材 |
+| 生图、生视频 | 自己的 Muse 账号、额度和可达网络 |
+| Codex Agent | 包内 Codex 运行时及自己的账号/额度 |
+| Claude 会员 Agent | 另行安装官方 Claude Code，用自己的会员登录 |
+| Agnes / 其他 API Agent | 官方 Claude Code、自己的 Key、正确协议和模型 ID |
+| 本地语音转文字 | 已包含 faster-whisper-small 模型，开箱可用（本地转写） |
 
-- 所有服务只绑 127.0.0.1；本机密钥在首次启动时自动生成，只存放在你的数据目录。本软件本身不收集、不回传你的数据。
-- 但功能层面要说清：生图 / 生视频会把你的提示词和参考素材发给 Muse（muse.ai）处理，Agent 干活会把指令发给它接入的模型服务（OpenAI / Anthropic）。这是这些云端功能的工作方式，发送范围以你主动发起的操作为限。
-- 本软件不公开原始开发源码。浏览器里运行的网页资源和第三方组件按其各自许可分发：主要许可文件在包内 `licenses` 目录，FFmpeg 的 GPL 许可在包内 `tools` 目录，完整的第三方组件与许可清单见本仓库根目录的 `THIRD-PARTY-NOTICES.md`。
+Agnes 选 **OpenAI 兼容格式**，无需 CC Switch。其他供应商按实际文档选择 OpenAI 或 Anthropic 格式。程序传递所选模型 ID，不自动切换其他模型；供应商的最终映射和计费以其返回及账单为准。
 
-## 版本
+Windows 10/11 x64，至少 5 GB 安装空间及后续素材空间，Chrome 或 Edge。Node、Python 环境和 FFmpeg 已包含；Claude Code 不在包内，需满足其官方 Windows 运行要求。
 
-见仓库根目录 `manifest.json`（组件与版本清单）。当前版本：0.20.0-preview.2。
+## 数据和隐私
+
+`instance.json` 记录数据目录；该目录保存本机凭证、设置及作品相关数据。不要公开运行数据。发布包不含账号、密钥、Cookie、作品或浏览器登录态。
+
+服务监听本机回环地址。云端功能会把指令、上下文和选用素材发送给选中的供应商。OpenAI 协议适配器临时运行于回环地址，任务结束后关闭；其输入 token 计数是估算，不能用作账单核对。
+
+不公开源码工程不等于浏览器资源无法阅读或二进制无法分析。第三方组件按各自许可分发，见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
