@@ -2,18 +2,20 @@
   "components": {
     "agent": "canvas-agent 0.6.0 custom build, V8 bytecode, bundled Node v24.18.0, Codex 0.166.0",
     "models": "faster-whisper-small speech model weights included",
-    "pool": "muse2api custom build (MusePool.exe, Nuitka-compiled modules, PyInstaller bundle)",
-    "services": "merge export + Claude history service (bytecode), web static service (bytecode)",
-    "tools": "FFmpeg (GPL build, see licenses)",
-    "web": "infinite-canvas 0.20.0 (built frontend, custom build)"
+    "pool": "muse2api custom build (MusePool.exe, Nuitka-compiled modules, PyInstaller bundle), Doubao provider",
+    "services": "merge export + Claude history service, web static service, license service (bytecode)",
+    "tools": "FFmpeg 8.1 (GPL build, source and build scripts in the same Release)",
+    "web": "infinite-canvas 0.21.0 (built frontend, custom build)"
   },
   "dataDir": "recorded per install in instance.json (default %LOCALAPPDATA%/MuseCanvas/data)",
   "defaultInstallDir": "C:/MuseCanvas",
   "name": "MuseCanvas",
-  "notes": "Free to use. No accounts, keys or user data included. Original development source is not published; third-party components ship under their own licenses (see licenses/ inside the package).",
+  "notes": "License activation built in (26-hour trial per computer, then an activation code); the license master switch is currently off. No accounts, keys or user data included. Original development source is not published; third-party components ship under their own licenses (see licenses/ inside the package).",
   "package": {
-    "file": "MuseCanvas-0.20.0-preview.3.zip",
-    "integrity": "Verify against the external Release SHA-256 before extraction. The ZIP cannot embed its own hash."
+    "file": "MuseCanvas-0.21.0.zip",
+    "sizeBytes": 944648737,
+    "sha256": "7360b3381dafb268dfc6094d70ac55fb71f8bdd1e1761939ac752a43cdfc019d",
+    "url": "https://github.com/fangrui202575/muse-canvas-deploy/releases/download/v0.21.0/MuseCanvas-0.21.0.zip"
   },
   "platform": "windows-x64",
   "ports": {
@@ -21,12 +23,13 @@
     "cdp": 19210,
     "export": 17372,
     "pool": 18610,
-    "web": 3000
+    "web": 3000,
+    "license": 17373
   },
-  "version": "0.20.0-preview.3",
+  "version": "0.21.0",
+  "validation": "Automated, install and upgrade tests passed; real-account generation is for the user to verify.",
   "apiFormats": [
     "anthropic",
     "openai"
-  ],
-  "validation": "See RELEASE-NOTES.md; real account acceptance pending"
+  ]
 }

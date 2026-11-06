@@ -10,7 +10,7 @@ $source = $PSScriptRoot
 $Destination = [IO.Path]::GetFullPath($Destination)
 
 function Get-MissingRequired($root) {
-    $required = @('scripts\Manage.ps1', 'node\node.exe', 'pool\MusePool.exe', 'agent\agent.cjs', 'services\entry.cjs', 'services\web.jsc', 'services\merge.jsc', 'web\index.html', 'tools\ffmpeg.exe', 'tools\ffprobe.exe')
+    $required = @('scripts\Manage.ps1', 'node\node.exe', 'pool\MusePool.exe', 'agent\agent.cjs', 'services\entry.cjs', 'services\web.jsc', 'services\merge.jsc', 'services\license.jsc', 'web\index.html', 'tools\ffmpeg.exe', 'tools\ffprobe.exe')
     return @($required | Where-Object { -not (Test-Path -LiteralPath (Join-Path $root $_)) })
 }
 
@@ -80,7 +80,7 @@ try {
     if ((Test-Path -LiteralPath $backup) -and -not (Test-Path -LiteralPath $Destination)) { Move-Item -LiteralPath $backup -Destination $Destination }
     throw ('Install failed during the folder swap; the previous installation was restored. ' + $_.Exception.Message)
 }
-$marker = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.20.0-preview.3'; installedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') }
+$marker = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.21.0'; installedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') }
 [IO.File]::WriteAllText((Join-Path $Destination 'musecanvas.json'), ($marker | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 
 # 5b) Pin the instance: record which data directory belongs to this install, so
@@ -96,7 +96,7 @@ if (!$DataDirectory) {
     }
 }
 $DataDirectory = [IO.Path]::GetFullPath($DataDirectory)
-$instance = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.20.0-preview.3'; installDir = $Destination; dataDirectory = $DataDirectory; forUser = $ForUser }
+$instance = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.21.0'; installDir = $Destination; dataDirectory = $DataDirectory; forUser = $ForUser }
 [IO.File]::WriteAllText((Join-Path $Destination 'instance.json'), ($instance | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 Write-Output ('Instance data directory: ' + $DataDirectory)
 if (Test-Path -LiteralPath $backup) { Remove-Item -LiteralPath $backup -Recurse -Force -ErrorAction SilentlyContinue }
