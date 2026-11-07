@@ -5,17 +5,17 @@
     "pool": "muse2api custom build (MusePool.exe, Nuitka-compiled modules, PyInstaller bundle), Doubao provider",
     "services": "merge export + Claude history service, web static service, license service (bytecode)",
     "tools": "FFmpeg 8.1 (GPL build, source and build scripts in the same Release)",
-    "web": "infinite-canvas 0.21.1 (built frontend, custom build)"
+    "web": "infinite-canvas 0.21.2 (built frontend, custom build)"
   },
   "dataDir": "recorded per install in instance.json (default %LOCALAPPDATA%/MuseCanvas/data)",
   "defaultInstallDir": "C:/MuseCanvas",
   "name": "MuseCanvas",
   "notes": "A license module is built in and currently not enabled. No accounts, keys or user data included. Original development source is not published; third-party components ship under their own licenses (see licenses/ inside the package).",
   "package": {
-    "file": "MuseCanvas-0.21.1.zip",
-    "sizeBytes": 944738196,
-    "sha256": "a2069d03df4e592a0b6af4b446a025ade21a73c0443d153569a863aaadec4bdc",
-    "url": "https://github.com/fangrui202575/muse-canvas-deploy/releases/download/v0.21.1/MuseCanvas-0.21.1.zip"
+    "file": "MuseCanvas-0.21.2.zip",
+    "sizeBytes": 944740493,
+    "sha256": "fab57656ec4e89f7c5d4f5e3aa9a39e3baa5d3a1c17b2e5388910a999a075730",
+    "url": "https://github.com/fangrui202575/muse-canvas-deploy/releases/download/v0.21.2/MuseCanvas-0.21.2.zip"
   },
   "platform": "windows-x64",
   "ports": {
@@ -26,7 +26,7 @@
     "web": 3000,
     "license": 17373
   },
-  "version": "0.21.1",
+  "version": "0.21.2",
   "validation": "Automated, install and upgrade tests passed; real-account generation is for the user to verify.",
   "apiFormats": [
     "anthropic",
