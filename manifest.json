@@ -10,7 +10,7 @@
   "dataDir": "recorded per install in instance.json (default %LOCALAPPDATA%/MuseCanvas/data)",
   "defaultInstallDir": "C:/MuseCanvas",
   "name": "MuseCanvas",
-  "notes": "License activation built in (26-hour trial per computer, then an activation code); the license master switch is currently off. No accounts, keys or user data included. Original development source is not published; third-party components ship under their own licenses (see licenses/ inside the package).",
+  "notes": "A license module is built in and currently not enabled. No accounts, keys or user data included. Original development source is not published; third-party components ship under their own licenses (see licenses/ inside the package).",
   "package": {
     "file": "MuseCanvas-0.21.0.zip",
     "sizeBytes": 944648737,
