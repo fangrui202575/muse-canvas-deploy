@@ -1,4 +1,4 @@
-# 第三方组件清单 · MuseCanvas 0.21.0
+# 第三方组件清单 · MuseCanvas 0.21.1
 
 MuseCanvas 的原始开发工程不在本发布仓库中。第三方组件的版权、许可及源码权利仍属于各自作者，不能用本项目的源码保密要求限制第三方的原有权利。
 
@@ -15,6 +15,6 @@ MuseCanvas 的原始开发工程不在本发布仓库中。第三方组件的版
 
 FFmpeg 二进制版本为 `n8.1.3-34-ga35157abb9-20261106`，构建来自 [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds)，原工程与许可见 [FFmpeg](https://ffmpeg.org/legal.html)。版本及构建参数见 licenses/FFmpeg-build.txt。
 
-FFmpeg 对应源码和构建脚本的下载位置：https://github.com/fangrui202575/muse-canvas-deploy/releases/tag/v0.21.0。
+FFmpeg 对应源码和构建脚本的下载位置：[发布时填写 Release 链接]。
 
 本清单记录实物位置，不把“有一份许可索引”等同于所有再分发义务已完成。不要上传用户的账号、密钥、Cookie、浏览器资料、作品和运行日志。
