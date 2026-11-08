@@ -10,7 +10,7 @@
   "dataDir": "recorded per install in instance.json (default %LOCALAPPDATA%/MuseCanvas/data)",
   "defaultInstallDir": "C:/MuseCanvas",
   "name": "MuseCanvas",
-  "notes": "A license module is built in and currently not enabled. No accounts, keys or user data included. Third-party components ship under their own licenses (see licenses/ inside the package).",
+  "notes": "No accounts, keys or user data included. Third-party components ship under their own licenses (see licenses/ inside the package).",
   "package": {
     "file": "MuseCanvas-0.21.2.zip",
     "sizeBytes": 944740493,
