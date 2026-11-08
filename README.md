@@ -1,6 +1,6 @@
 # MuseCanvas 无限画布 · Windows 本地部署版
 
-> **官方订阅站**：[ai.fylmlgsb.xyz](https://ai.fylmlgsb.xyz) —— 账号、充值、MuseCanvas 激活码都在这里
+> **官方订阅站**：[ai.fylmlgsb.xyz](https://ai.fylmlgsb.xyz)
 > **QQ 交流群**：**654253918**（进群备注「AI时代」）—— 上新通知 · 售后答疑 · 画布交流
 > **作者抖音**：「无限」（抖音号 53071658926）—— 教程和新玩法看那边
 
