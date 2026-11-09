@@ -1,4 +1,4 @@
-# MuseCanvas 部署说明 · 0.21.2
+# MuseCanvas 部署说明 · 0.21.3
 
 本版是完整安装包，不依赖旧包。只使用 manifest 指定的 Release 成品，不从源码临时拼装。
 
