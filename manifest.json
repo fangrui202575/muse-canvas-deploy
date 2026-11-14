@@ -2,20 +2,21 @@
   "components": {
     "agent": "canvas-agent 0.6.0 custom build, V8 bytecode, bundled Node v24.18.0, Codex 0.166.0",
     "models": "faster-whisper-small speech model weights included",
-    "pool": "muse2api custom build (MusePool.exe, Nuitka-compiled modules, PyInstaller bundle), Doubao provider",
-    "services": "merge export + Claude history service, web static service, license service (bytecode)",
+    "pool": "muse2api custom build (MusePool.exe, Nuitka-compiled modules, PyInstaller bundle), Doubao provider; MuseProtocol.exe (new interface, direct connection)",
+    "services": "merge export + Claude history service, web static service, license service with signed one-click update (bytecode)",
     "tools": "FFmpeg 8.1 (GPL build, source and build scripts in the same Release)",
-    "web": "infinite-canvas 0.21.3 (built frontend, custom build)"
+    "web": "infinite-canvas 0.23.0 (built frontend, custom build)"
   },
-  "dataDir": "recorded per install in instance.json (default %LOCALAPPDATA%/MuseCanvas/data)",
-  "defaultInstallDir": "C:/MuseCanvas",
+  "dataDir": "recorded per install in instance.json (wizard default: MuseCanvasData on the same drive)",
+  "defaultInstallDir": "chosen at install time (wizard lists drives, recommends the non-system drive with the most free space)",
   "name": "MuseCanvas",
   "notes": "No accounts, keys or user data included. Third-party components ship under their own licenses (see licenses/ inside the package).",
   "package": {
-    "file": "MuseCanvas-0.21.3.zip",
-    "sizeBytes": 944746409,
-    "sha256": "2a6fcd625fb8dba64306642420f9abce03a943d591559ab9bfd473f304f58d2d",
-    "url": "https://github.com/fangrui202575/muse-canvas-deploy/releases/download/v0.21.3/MuseCanvas-0.21.3.zip"
+    "file": "MuseCanvas-0.23.0.zip",
+    "sizeBytes": 976635179,
+    "sha256": "7042202d4858cd27e1d593afefcd6b608ceab191524f4dbc4e64c1410c2ba3ab",
+    "url": "https://github.com/fangrui202575/muse-canvas-deploy/releases/download/v0.23.0/MuseCanvas-0.23.0.zip",
+    "layout": "one top-level folder MuseCanvas-0.23.0/; run 双击安装.bat inside it"
   },
   "platform": "windows-x64",
   "ports": {
@@ -23,11 +24,12 @@
     "cdp": 19210,
     "export": 17372,
     "pool": 18610,
+    "protocol": 18611,
     "web": 3000,
     "license": 17373
   },
-  "version": "0.21.3",
-  "validation": "Automated, install and upgrade tests passed; real-account generation is for the user to verify.",
+  "version": "0.23.0",
+  "validation": "Automated, install, upgrade and signed-package tests passed; real-account generation is for the user to verify.",
   "apiFormats": [
     "anthropic",
     "openai"
