@@ -91,13 +91,13 @@ if ($hadInstall) { Assert-InstallClosed $Destination $DataDirectory }
 # The runtime launcher needs this same helper after installation.
 Copy-Item -LiteralPath (Join-Path $source 'Installer-Common.ps1') -Destination (Join-Path $staging 'scripts\Installer-Common.ps1') -Force
 $null = Invoke-BrowserLookup $source $browserConfig -Save
-$marker = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.0'; installedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') }
+$marker = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.1'; installedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') }
 [IO.File]::WriteAllText((Join-Path $staging 'musecanvas.json'), ($marker | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 
 # 5b) Pin the instance: record which data directory belongs to this install, so
 # every later Start/Stop/Status - from any Windows account - resolves the same
 # data directory instead of the caller's own profile folder.
-$instance = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.0'; installDir = $Destination; dataDirectory = $DataDirectory; forUser = $ForUser }
+$instance = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.1'; installDir = $Destination; dataDirectory = $DataDirectory; forUser = $ForUser }
 [IO.File]::WriteAllText((Join-Path $staging 'instance.json'), ($instance | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 Invoke-InstallSwap $Destination $staging $backup
 Write-Output ('Instance data directory: ' + $DataDirectory)
@@ -123,7 +123,10 @@ if (!$NoShortcut) {
     $lnk.TargetPath = 'powershell.exe'
     $lnk.Arguments = '-NoProfile -ExecutionPolicy Bypass -File "' + $destManage + '" -Action Start'
     $lnk.WorkingDirectory = $Destination
-    $lnk.Description = 'Start MuseCanvas (local canvas, agent, generation pool and export service)'
+    $lnk.Description = '打开 MuseCanvas（双击启动画布、Agent、螺旋池和合成导出）'
+    # 0.23.1: own icon. With the PowerShell icon users did not recognise the shortcut.
+    $icon = Join-Path $Destination 'MuseCanvas.ico'
+    if (Test-Path -LiteralPath $icon) { $lnk.IconLocation = $icon + ',0' }
     $lnk.Save()
     Write-Output ('Desktop shortcut created: ' + $lnkPath)
 }
