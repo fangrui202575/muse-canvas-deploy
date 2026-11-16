@@ -65,8 +65,24 @@ $staging = $Destination + '.new-' + $stamp
 $backup = $Destination + '.old-' + $stamp
 $allowedParent = Split-Path -Parent $Destination
 if (!(Test-PathInside $staging $allowedParent) -or !(Test-PathInside $backup $allowedParent)) { throw '安装临时目录不正确，已停止安装。' }
-& robocopy $source $staging /MIR /NFL /NDL /NJH /NJS | Out-Null
-if ($LASTEXITCODE -ge 8) { Remove-Item $staging -Recurse -Force -ErrorAction SilentlyContinue; throw ('安装文件复制失败，旧版没有改动。详情：Staging copy failed (robocopy ' + $LASTEXITCODE + '). Nothing was changed.') }
+# 0.23.2: keep a copy log. Before, /NFL /NDL + Out-Null left nothing to look at when the copy failed
+# (robocopy 16 = nothing copied; usually antivirus real-time protection or a half-extracted package).
+$copyLogDir = Join-Path $DataDirectory 'logs'
+try { New-Item -ItemType Directory -Force -Path $copyLogDir | Out-Null } catch { $copyLogDir = [IO.Path]::GetTempPath() }
+$copyLog = Join-Path $copyLogDir ('install-copy-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.log')
+& robocopy $source $staging /MIR /NP /R:2 /W:1 /TEE /UNILOG:$copyLog | Out-Null
+$copyCode = $LASTEXITCODE
+if ($copyCode -ge 8) {
+    Remove-Item $staging -Recurse -Force -ErrorAction SilentlyContinue
+    $failedFiles = @()
+    try { $failedFiles = @(Select-String -LiteralPath $copyLog -Pattern 'ERROR \d+' -ErrorAction Stop | Select-Object -First 3 | ForEach-Object { $_.Line.Trim() }) } catch { }
+    $detail = if ($failedFiles.Count) { "`n出错的文件：`n" + ($failedFiles -join "`n") } else { '' }
+    throw ('安装文件复制失败，旧版没有任何改动。' +
+           "`n最常见的原因：1）杀毒软件的实时防护拦截了程序文件——请先暂时关闭实时防护（或把 MuseCanvas 文件夹加入信任），再重新安装；" +
+           "2）安装包没有完整解压——请把压缩包完整解压到一个文件夹后，再运行里面的「双击安装」。" +
+           $detail + "`n完整复制日志：" + $copyLog + "`n（Staging copy failed, robocopy " + $copyCode + '. Nothing was changed.）')
+}
+Remove-Item -LiteralPath $copyLog -Force -ErrorAction SilentlyContinue  # success: no need to keep it
 $missingStaged = Get-MissingRequired $staging
 if ($missingStaged.Count -gt 0) { Remove-Item $staging -Recurse -Force -ErrorAction SilentlyContinue; throw ('安装文件不完整，旧版没有改动。详情：Staged copy is incomplete (missing: ' + ($missingStaged -join ', ') + '). Nothing was changed.') }
 
@@ -91,13 +107,13 @@ if ($hadInstall) { Assert-InstallClosed $Destination $DataDirectory }
 # The runtime launcher needs this same helper after installation.
 Copy-Item -LiteralPath (Join-Path $source 'Installer-Common.ps1') -Destination (Join-Path $staging 'scripts\Installer-Common.ps1') -Force
 $null = Invoke-BrowserLookup $source $browserConfig -Save
-$marker = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.1'; installedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') }
+$marker = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.2'; installedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') }
 [IO.File]::WriteAllText((Join-Path $staging 'musecanvas.json'), ($marker | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 
 # 5b) Pin the instance: record which data directory belongs to this install, so
 # every later Start/Stop/Status - from any Windows account - resolves the same
 # data directory instead of the caller's own profile folder.
-$instance = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.1'; installDir = $Destination; dataDirectory = $DataDirectory; forUser = $ForUser }
+$instance = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.2'; installDir = $Destination; dataDirectory = $DataDirectory; forUser = $ForUser }
 [IO.File]::WriteAllText((Join-Path $staging 'instance.json'), ($instance | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 Invoke-InstallSwap $Destination $staging $backup
 Write-Output ('Instance data directory: ' + $DataDirectory)
