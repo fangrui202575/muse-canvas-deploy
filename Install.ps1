@@ -106,14 +106,16 @@ if ($hadInstall) {
 if ($hadInstall) { Assert-InstallClosed $Destination $DataDirectory }
 # The runtime launcher needs this same helper after installation.
 Copy-Item -LiteralPath (Join-Path $source 'Installer-Common.ps1') -Destination (Join-Path $staging 'scripts\Installer-Common.ps1') -Force
+# 0.23.3: the browser was already found above; let the second (saving) run reuse it instead of searching again
+if ($browser) { $env:MUSE2API_CHROMIUM = $browser }
 $null = Invoke-BrowserLookup $source $browserConfig -Save
-$marker = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.2'; installedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') }
+$marker = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.3'; installedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') }
 [IO.File]::WriteAllText((Join-Path $staging 'musecanvas.json'), ($marker | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 
 # 5b) Pin the instance: record which data directory belongs to this install, so
 # every later Start/Stop/Status - from any Windows account - resolves the same
 # data directory instead of the caller's own profile folder.
-$instance = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.2'; installDir = $Destination; dataDirectory = $DataDirectory; forUser = $ForUser }
+$instance = [pscustomobject]@{ product = 'MuseCanvas'; version = '0.23.3'; installDir = $Destination; dataDirectory = $DataDirectory; forUser = $ForUser }
 [IO.File]::WriteAllText((Join-Path $staging 'instance.json'), ($instance | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 Invoke-InstallSwap $Destination $staging $backup
 Write-Output ('Instance data directory: ' + $DataDirectory)
@@ -136,7 +138,8 @@ if (!$NoShortcut) {
     $lnkPath = Join-Path $desktop 'MuseCanvas.lnk'
     $shell = New-Object -ComObject WScript.Shell
     $lnk = $shell.CreateShortcut($lnkPath)
-    $lnk.TargetPath = 'powershell.exe'
+    # 0.23.3: full path, so the shortcut also works on PCs whose PATH lacks WindowsPowerShell
+    $lnk.TargetPath = (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe')
     $lnk.Arguments = '-NoProfile -ExecutionPolicy Bypass -File "' + $destManage + '" -Action Start'
     $lnk.WorkingDirectory = $Destination
     $lnk.Description = '打开 MuseCanvas（双击启动画布、Agent、螺旋池和合成导出）'
@@ -147,7 +150,7 @@ if (!$NoShortcut) {
     Write-Output ('Desktop shortcut created: ' + $lnkPath)
 }
 if ($AutoStart) {
-    $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument ('-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $destManage + '" -Action Start -NoBrowser')
+    $action = New-ScheduledTaskAction -Execute (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe') -Argument ('-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $destManage + '" -Action Start -NoBrowser')
     $trigger = New-ScheduledTaskTrigger -AtLogOn -User $ForUser
     $principal = New-ScheduledTaskPrincipal -UserId $ForUser -LogonType Interactive -RunLevel Limited
     Register-ScheduledTask -TaskName 'MuseCanvas' -Action $action -Trigger $trigger -Principal $principal -Force | Out-Null
